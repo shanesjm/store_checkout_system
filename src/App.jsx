@@ -1,29 +1,38 @@
 import { useEffect, useState } from "react";
 
-// const intialState = [[], [2, 9], [3], [4, 5]];
+const initialState = {
+  1: [12, 9, 7],
+  2: [15],
+  3: [10, 1],
+  4: [16],
+};
 
 function App() {
-  const intialState = {
-    1: [8, 11, 33],
-    2: [6],
-    3: [10, 1],
-    4: [5],
-  };
-  const decreaseCounter = () => {
-    const tempData = { ...counterData };
+  const [counterData, setCounterData] = useState(initialState);
+  const [productsForQueue, setProductsForQueue] = useState("");
 
-    for (const [key, value] of Object.entries(tempData)) {
-      if (value.length) {
-        const indx = value.indexOf(value[0]);
-        console.log("tempData[key][indx]-1", tempData[key][indx] - 1);
-        if (tempData[key][indx] == 0) {
-          tempData[key].shift();
-        } else {
-          tempData[key][indx] = tempData[key][indx] - 1;
+  const handleCheckout = () => {
+    let leastNoOfProducts = Number.MAX_VALUE;
+    let counterNumber = 1;
+    for (const [key, value] of Object.entries(counterData)) {
+      if (!value.length) {
+        counterNumber = key;
+        break;
+      } else {
+        const totalProductsInCounter = value.reduce((acc, currentVal) => {
+          return acc + currentVal;
+        }, 0);
+
+        if (totalProductsInCounter < leastNoOfProducts) {
+          leastNoOfProducts = totalProductsInCounter;
+          counterNumber = key;
         }
       }
     }
-    setCounterData(tempData);
+
+    alert(`Please go to counter numnber ${counterNumber}.`);
+
+    setProductsForQueue("");
   };
   useEffect(() => {
     let interval = setInterval(() => {
@@ -35,7 +44,21 @@ function App() {
     };
   }, []);
 
-  const [counterData, setCounterData] = useState(intialState);
+  const decreaseCounter = () => {
+    const tempData = { ...counterData };
+
+    for (const [key, value] of Object.entries(tempData)) {
+      if (value.length) {
+        const indx = value.indexOf(value[0]);
+        if (tempData[key][indx] == 0) {
+          tempData[key].shift();
+        } else {
+          tempData[key][indx] = tempData[key][indx] - 1;
+        }
+      }
+    }
+    setCounterData(tempData);
+  };
 
   let counterDataList = [];
 
@@ -67,9 +90,16 @@ function App() {
           </label>
           <div className="flex gap-2 mt-2 rounded-md shadow-sm">
             <div>
-              <input className="flex-1 rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+              <input
+                className="flex-1 rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                value={productsForQueue}
+                onChange={(e) => setProductsForQueue(e.target.value)}
+              />
             </div>
-            <button className="rounded-full bg-yellow-600 p-2">
+            <button
+              className="rounded-full bg-yellow-600 p-2"
+              onClick={handleCheckout}
+            >
               Checkout Queue
             </button>
           </div>
